@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 
-export function chunk<T>(array: T[], chunkSize: number): Array<T[]> {
+function chunk<T>(array: T[], chunkSize: number): Array<T[]> {
   const arrays: Array<T[]> = [];
   let currentChunk = 0;
 
