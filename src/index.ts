@@ -23,8 +23,8 @@ class SsmParameterStore<TParameters extends Record<string, string>> {
   private ssm = new AWS.SSM();
   private loaded = false;
 
-  parameterNamesToKeys: Record<keyof TParameters, string>;
-  parameterKeysToValues: Record<string, string> = {};
+  private parameterNamesToKeys: Record<keyof TParameters, string>;
+  private parameterKeysToValues: Record<string, string> = {};
 
   constructor(parameterNamesToKeys: TParameters) {
     this.parameterNamesToKeys = parameterNamesToKeys;
