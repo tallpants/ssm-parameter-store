@@ -1,3 +1,4 @@
 dist/tsconfig.tsbuildinfo
 src/
 test.ts
+tsconfig.json

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": "https://github.com/tallpants/ssm-parameter-store",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
