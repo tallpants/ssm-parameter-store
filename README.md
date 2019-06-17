@@ -1,5 +1,12 @@
+# `ssm-parameter-store`
+
+A safer, nicer abstraction over AWS SSM Parameter Store.
+
+Usage:
+
+```js
 import AWS from 'aws-sdk';
-import SsmParameterStore from './src';
+import SsmParameterStore from 'ssm-parameter-store';
 
 AWS.config.update({ region: 'us-east-1' });
 
@@ -10,6 +17,7 @@ async function main() {
     NonExistentParameter: 'doesntexist'
   });
 
+  // Fetch all params and cache them
   await params.preload();
 
   console.log(await params.getAll());
@@ -34,3 +42,4 @@ async function main() {
 }
 
 main();
+```
