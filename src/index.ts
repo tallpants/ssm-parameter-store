@@ -19,7 +19,7 @@ function chunk<T>(array: T[], chunkSize: number): Array<T[]> {
   return arrays;
 }
 
-export default class SsmParameterStore<TParameters extends Record<string, string>> {
+class SsmParameterStore<TParameters extends Record<string, string>> {
   private ssm = new AWS.SSM();
   private loaded = false;
 
@@ -107,3 +107,5 @@ export default class SsmParameterStore<TParameters extends Record<string, string
     }
   }
 }
+
+export = SsmParameterStore;
