@@ -1,6 +1,6 @@
 # `ssm-parameter-store`
 
-A safer, nicer abstraction over AWS SSM Parameter Store.
+A safer, nicer abstraction over AWS SSM Parameter Store with built-in caching and idempotent preloading.
 
 Usage:
 
