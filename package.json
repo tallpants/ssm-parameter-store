@@ -1,9 +1,14 @@
 {
   "name": "ssm-parameter-store",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": "https://github.com/tallpants/ssm-parameter-store",
+  "keywords": [
+    "aws",
+    "ssm",
+    "ssm parameter store"
+  ],
   "license": "MIT",
   "scripts": {
     "build": "tsc",
