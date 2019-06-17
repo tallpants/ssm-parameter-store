@@ -2,7 +2,15 @@
 
 A safer, nicer abstraction over AWS SSM Parameter Store with built-in caching and idempotent preloading.
 
-Usage:
+## Installation
+
+- `npm install --save ssm-parameter-store`
+
+Or
+
+- `yarn add ssm-parameter-store`
+
+## Usage
 
 ```js
 import AWS from 'aws-sdk';
