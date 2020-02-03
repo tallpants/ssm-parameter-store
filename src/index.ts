@@ -44,7 +44,7 @@ class SSMParameterStore<TParameters extends Record<string, string>> {
 
   private async fetchTen(keys: string[]) {
     const ssmResponse = await this.ssm.getParameters({ Names: keys, WithDecryption: true }).promise();
-    const responseKeysToValues: Record<string, string | undefined> = {};
+    const responseKeysToValues: Record<string, string> = {};
 
     for (const parameter of ssmResponse.Parameters!) {
       responseKeysToValues[parameter.Name!] = parameter.Value!;
@@ -102,8 +102,8 @@ class SSMParameterStore<TParameters extends Record<string, string>> {
   async getAll(options: Options = { ignoreCache: false }) {
     await this.preload(options);
 
-    const response: Record<keyof TParameters, string> = { ...this.parameterNamesToKeys };
-    Object.entries(response).forEach(([name, key]) => {
+    const response = {} as Record<keyof TParameters, string>;
+    Object.entries(this.parameterNamesToKeys).forEach(([name, key]) => {
       response[name as keyof TParameters] = this.parameterKeysToValues[key];
     });
 
