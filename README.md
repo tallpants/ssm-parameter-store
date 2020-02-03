@@ -1,16 +1,12 @@
 # `SSMParameterStore`
 
-https://www.npmjs.com/package/ssm-parameter-store
-
 Ergonomic SSM Parameter Store wrapper for AWS Lambda designed with ease-of-use in mind, with built-in caching and idempotent preloading, TypeScript compile time checks, and handy autocompletion.
+
+https://www.npmjs.com/package/ssm-parameter-store
 
 ## Installation
 
-- `npm install --save ssm-parameter-store`
-
-Or
-
-- `yarn add ssm-parameter-store`
+`npm install --save ssm-parameter-store`
 
 ## Usage example
 
