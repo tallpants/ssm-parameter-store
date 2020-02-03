@@ -19,93 +19,96 @@ function chunk<T>(array: T[], chunkSize: number): Array<T[]> {
   return arrays;
 }
 
-class SsmParameterStore<TParameters extends Record<string, string>> {
+interface Options {
+  ignoreCache: boolean;
+}
+
+class SSMParameterStore<TParameters extends Record<string, string>> {
   private ssm = new AWS.SSM();
-  private loaded = false;
 
-  private parameterNamesToKeys: Record<keyof TParameters, string>;
+  private parameterNamesToKeys = {} as TParameters;
   private parameterKeysToValues: Record<string, string> = {};
+  private keyLoaded: Record<string, boolean> = {};
 
-  constructor(parameterNamesToKeys: TParameters) {
-    this.parameterNamesToKeys = parameterNamesToKeys;
-    Object.values(parameterNamesToKeys).forEach(key => {
-      this.parameterKeysToValues[key] = '';
-    });
+  private async fetchOne(key: string) {
+    try {
+      const ssmResponse = await this.ssm.getParameter({ Name: key, WithDecryption: true }).promise();
+      return ssmResponse.Parameter!.Value!;
+    } catch (err) {
+      if (err.code === 'ParameterNotFound') {
+        return '';
+      }
+      throw err;
+    }
   }
 
-  private async fetchOne(parameterKey: string) {
-    const ssmResponse = await this.ssm.getParameter({ Name: parameterKey, WithDecryption: true }).promise();
-    return ssmResponse.Parameter ? ssmResponse.Parameter.Value : undefined;
-  }
+  private async fetchTen(keys: string[]) {
+    const ssmResponse = await this.ssm.getParameters({ Names: keys, WithDecryption: true }).promise();
+    const responseKeysToValues: Record<string, string | undefined> = {};
 
-  private async fetchTen(parameterKeys: string[]) {
-    const ssmResponse = await this.ssm.getParameters({ Names: parameterKeys, WithDecryption: true }).promise();
-
-    const responseParameterMap: Record<string, string | undefined> = {};
-
-    if (ssmResponse.Parameters) {
-      ssmResponse.Parameters.forEach(parameter => {
-        responseParameterMap[parameter.Name!] = parameter.Value;
-      });
+    for (const parameter of ssmResponse.Parameters!) {
+      responseKeysToValues[parameter.Name!] = parameter.Value!;
     }
 
-    return parameterKeys.map(key => responseParameterMap[key]);
+    return keys.map(key => responseKeysToValues[key] || '');
   }
 
   private async loadAll() {
-    const parameterNamesToKeysArray = Object.entries(this.parameterNamesToKeys).map(([name, key]) => ({ name, key }));
-
-    const parameterNamesToKeysArrayChunks = chunk(parameterNamesToKeysArray, 10);
+    const parameterKeysArray = Object.values(this.parameterNamesToKeys);
+    const parameterKeysArrayChunks = chunk(parameterKeysArray, 10);
 
     await Promise.all(
-      parameterNamesToKeysArrayChunks.map(async chunk => {
-        const values = await this.fetchTen(chunk.map(nameToKeyPair => nameToKeyPair.key));
-        chunk.forEach((nameToKeyPair, idx) => {
-          this.parameterKeysToValues[nameToKeyPair.key] = values[idx]!;
+      parameterKeysArrayChunks.map(async chunk => {
+        const chunkValues = await this.fetchTen(chunk);
+        chunkValues.forEach((value, idx) => {
+          const key = chunk[idx];
+          this.parameterKeysToValues[key] = value;
+          this.keyLoaded[key] = true;
         });
       })
     );
-
-    this.loaded = true;
   }
 
-  async preload({ ignoreCache }: { ignoreCache: boolean } = { ignoreCache: false }) {
-    if (!this.loaded || ignoreCache) {
-      await this.loadAll();
+  constructor(parameterNamesToKeys: TParameters) {
+    this.parameterNamesToKeys = parameterNamesToKeys;
+    for (const key of Object.values(parameterNamesToKeys)) {
+      this.parameterKeysToValues[key] = '';
+      this.keyLoaded[key] = false;
     }
   }
 
-  async getAll({ ignoreCache }: { ignoreCache: boolean } = { ignoreCache: false }) {
-    if (!this.loaded || ignoreCache) {
-      await this.loadAll();
+  async preload(options: Options = { ignoreCache: false }) {
+    if (options.ignoreCache || Object.values(this.keyLoaded).some(keyLoadedState => keyLoadedState === false)) {
+      return this.loadAll();
+    }
+  }
+
+  async get(name: keyof TParameters, options: Options = { ignoreCache: false }) {
+    const key = this.parameterNamesToKeys[name];
+
+    if (!key) {
+      throw new Error(`Unknown parameter ${name}. Not in new SSMParameterStore({ }) declaration`);
     }
 
-    const response: Record<keyof TParameters, string | undefined> = { ...this.parameterNamesToKeys };
-    Object.keys(response).forEach(name => {
-      response[name as keyof TParameters] = this.parameterKeysToValues[this.parameterNamesToKeys[name]];
+    if (options.ignoreCache || !this.keyLoaded[key]) {
+      const value = await this.fetchOne(key);
+      this.parameterKeysToValues[key] = value;
+      this.keyLoaded[key] = true;
+    }
+
+    return this.parameterKeysToValues[key];
+  }
+
+  async getAll(options: Options = { ignoreCache: false }) {
+    await this.preload(options);
+
+    const response: Record<keyof TParameters, string> = { ...this.parameterNamesToKeys };
+    Object.entries(response).forEach(([name, key]) => {
+      response[name as keyof TParameters] = this.parameterKeysToValues[key];
     });
 
     return response;
   }
-
-  async get(name: keyof TParameters, { ignoreCache }: { ignoreCache: boolean } = { ignoreCache: false }) {
-    if (!this.parameterNamesToKeys.hasOwnProperty(name)) {
-      throw new Error(`Parameter ${name} doesn't exist.`);
-    }
-
-    try {
-      if (!this.loaded || ignoreCache) {
-        const key = this.parameterNamesToKeys[name];
-        const value = await this.fetchOne(this.parameterNamesToKeys[name]);
-        this.parameterKeysToValues[key] = value!;
-        return value;
-      }
-
-      return this.parameterKeysToValues[this.parameterNamesToKeys[name]];
-    } catch (err) {
-      return undefined;
-    }
-  }
 }
 
-export = SsmParameterStore;
+export = SSMParameterStore;
