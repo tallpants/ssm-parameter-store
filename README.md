@@ -2,7 +2,7 @@
 
 https://www.npmjs.com/package/ssm-parameter-store
 
-A safer, nicer abstraction over AWS SSM Parameter Store designed for AWS Lambda with built-in caching and idempotent preloading, TypeScript compile time checks, and handy autocompletion.
+Ergonomic SSM Parameter Store wrapper for AWS Lambda designed with ease-of-use in mind, with built-in caching and idempotent preloading, TypeScript compile time checks, and handy autocompletion.
 
 ## Installation
 
