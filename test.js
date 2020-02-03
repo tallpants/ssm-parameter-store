@@ -12,6 +12,15 @@ async function main() {
 
   console.log(await params.get('NonExistentParameter'));
   console.log(await params.get('TestNestedParameter'));
+  console.log(await params.get('TestNestedParameter', { ignoreCache: true }));
+
+  console.log(await params.getAll());
+
+  console.log(await params.getAll({ ignoreCache: true }));
+
+  console.log(await params.preload());
+
+  console.log(await params.get('UndeclaredParameter'));
 }
 
 main();
