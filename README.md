@@ -8,7 +8,7 @@ https://www.npmjs.com/package/ssm-parameter-store
 
 `npm install --save ssm-parameter-store`
 
-## Usage example
+## Usage
 
 ```js
 const SSMParameterStore = require('ssm-parameter-store');
