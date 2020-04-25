@@ -1,8 +1,8 @@
 # `SSMParameterStore`
 
-![](https://img.shields.io/npm/dm/ssm-parameter-store)
-
 Ergonomic SSM Parameter Store wrapper for AWS Lambda designed with ease-of-use in mind, with built-in caching and idempotent preloading, TypeScript compile time checks, and handy autocompletion.
+
+![](https://img.shields.io/npm/dm/ssm-parameter-store)
 
 https://www.npmjs.com/package/ssm-parameter-store
 
