@@ -12,7 +12,7 @@ https://www.npmjs.com/package/ssm-parameter-store
 
 ## Changelog
 
-#### `2.1.1`
+#### `2.1.2`
 
 - Take an SSM parameter store instance as a constructor parameter instead of initializing it within the package.
 
