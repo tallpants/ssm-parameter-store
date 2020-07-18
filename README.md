@@ -10,12 +10,19 @@ https://www.npmjs.com/package/ssm-parameter-store
 
 `npm install --save ssm-parameter-store`
 
+## Changelog
+
+#### `2.1.0`
+
+- Take an SSM parameter store instance as a constructor parameter instead of initializing it within the package.
+
 ## Usage
 
 ```js
+const AWS = require('aws-sdk');
 const SSMParameterStore = require('ssm-parameter-store');
 
-const parameters = new SSMParameterStore({
+const parameters = new SSMParameterStore(new AWS.SSM(), {
   SomeParameter: 'some_parameter',
   SomeNestedParameter: '/some/nested/parameter',
   NonExistentParameter: 'this_parameter_doesnt_exist_on_ssm'

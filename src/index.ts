@@ -1,10 +1,10 @@
-import AWS from 'aws-sdk';
+import type AWS from 'aws-sdk';
 
 function chunk<T>(array: T[], chunkSize: number): Array<T[]> {
   const arrays: Array<T[]> = [];
   let currentChunk = 0;
 
-  array.forEach(value => {
+  array.forEach((value) => {
     if (!arrays[currentChunk]) {
       arrays[currentChunk] = [value];
     } else {
@@ -24,11 +24,20 @@ interface Options {
 }
 
 class SSMParameterStore<TParameters extends Record<string, string>> {
-  private ssm = new AWS.SSM();
+  private ssm: AWS.SSM;
 
   private parameterNamesToKeys = {} as TParameters;
   private parameterKeysToValues: Record<string, string> = {};
   private keyLoaded: Record<string, boolean> = {};
+
+  constructor(ssm: AWS.SSM, parameterNamesToKeys: TParameters) {
+    this.ssm = ssm;
+    this.parameterNamesToKeys = parameterNamesToKeys;
+    for (const key of Object.values(parameterNamesToKeys)) {
+      this.parameterKeysToValues[key] = '';
+      this.keyLoaded[key] = false;
+    }
+  }
 
   private async fetchOne(key: string) {
     try {
@@ -50,7 +59,7 @@ class SSMParameterStore<TParameters extends Record<string, string>> {
       responseKeysToValues[parameter.Name!] = parameter.Value!;
     }
 
-    return keys.map(key => responseKeysToValues[key] || '');
+    return keys.map((key) => responseKeysToValues[key] || '');
   }
 
   private async loadAll() {
@@ -58,10 +67,10 @@ class SSMParameterStore<TParameters extends Record<string, string>> {
     const parameterKeysArrayChunks = chunk(parameterKeysArray, 10);
 
     await Promise.all(
-      parameterKeysArrayChunks.map(async chunk => {
-        const chunkValues = await this.fetchTen(chunk);
+      parameterKeysArrayChunks.map(async (keysChunk) => {
+        const chunkValues = await this.fetchTen(keysChunk);
         chunkValues.forEach((value, idx) => {
-          const key = chunk[idx];
+          const key = keysChunk[idx];
           this.parameterKeysToValues[key] = value;
           this.keyLoaded[key] = true;
         });
@@ -69,16 +78,8 @@ class SSMParameterStore<TParameters extends Record<string, string>> {
     );
   }
 
-  constructor(parameterNamesToKeys: TParameters) {
-    this.parameterNamesToKeys = parameterNamesToKeys;
-    for (const key of Object.values(parameterNamesToKeys)) {
-      this.parameterKeysToValues[key] = '';
-      this.keyLoaded[key] = false;
-    }
-  }
-
   async preload(options: Options = { ignoreCache: false }) {
-    if (options.ignoreCache || Object.values(this.keyLoaded).some(keyLoadedState => keyLoadedState === false)) {
+    if (options.ignoreCache || Object.values(this.keyLoaded).some((keyLoadedState) => keyLoadedState === false)) {
       return this.loadAll();
     }
   }
