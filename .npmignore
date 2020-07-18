@@ -1,5 +1,6 @@
 dist/tsconfig.tsbuildinfo
 src/
 test.ts
+test.js
 tsconfig.json
 docs/
