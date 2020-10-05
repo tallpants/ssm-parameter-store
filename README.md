@@ -35,7 +35,7 @@ exports.handler = async (event, context) => {
   // calls to preload will resolve instantly, making it safe to call every time
   // in the Lambda handler.
 
-  await params.getAll();
+  await parameters.getAll();
   // Returns all the parameters as an object. Since we already fetched and cached
   // the values when we called `preload` this resolves instantly. If `preload` wasn't
   // called then we fetch the parameter values from SSM and cache them before returning
