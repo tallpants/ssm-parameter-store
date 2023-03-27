@@ -12,6 +12,10 @@ https://www.npmjs.com/package/ssm-parameter-store
 
 ## Changelog
 
+#### `3.0.0`
+
+- Now uses AWS SDK v3 and supports the Node.js 18.x runtime on AWS Lambda. If you need to use AWS SDK v2, use the `2.1.2` release of this package.
+
 #### `2.1.2`
 
 - Take an SSM parameter store instance as a constructor parameter instead of initializing it within the package.
@@ -19,10 +23,10 @@ https://www.npmjs.com/package/ssm-parameter-store
 ## Usage
 
 ```js
-const AWS = require('aws-sdk');
+const { SSMClient } = require('@aws-sdk/client-ssm');
 const SSMParameterStore = require('ssm-parameter-store');
 
-const parameters = new SSMParameterStore(new AWS.SSM(), {
+const parameters = new SSMParameterStore(new SSMClient(), {
   SomeParameter: 'some_parameter',
   SomeNestedParameter: '/some/nested/parameter',
   NonExistentParameter: 'this_parameter_doesnt_exist_on_ssm'
@@ -66,8 +70,3 @@ exports.handler = async (event, context) => {
   // If you're using TypeScript you'll also get a compile time error
 }
 ```
-
-## Autocompletion
-
-![](docs/autocomplete-1.png)
-![](docs/autocomplete-2.png)
